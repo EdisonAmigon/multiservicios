@@ -1,0 +1,199 @@
+:root {
+  --bg: #0e0d0c;
+  --bg-alt: #17140f;
+  --cream: #f4ead9;
+  --gold: #c9a24b;
+  --muted: #a99d88;
+  --danger: #d9756c;
+  --success: #7bbf8a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--cream);
+  font-family: 'Cormorant Garamond', serif;
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(14, 13, 12, 0.55) 0%, rgba(14, 13, 12, 0.75) 45%, var(--bg) 92%),
+    url('../assets/img/temis-justicia.png');
+  background-size: cover;
+  background-position: top center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(244, 234, 217, 0.15);
+  flex-wrap: wrap;
+}
+
+.topbar-brand {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  font-size: 0.95rem;
+}
+
+.topbar-side {
+  font-family: 'Cinzel', serif;
+  font-weight: 500;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.hero {
+  text-align: center;
+  padding: 56px 0 40px;
+}
+
+.hero-title {
+  font-family: 'Bodoni Moda', serif;
+  font-weight: 900;
+  font-size: clamp(3.5rem, 16vw, 7rem);
+  letter-spacing: 0.03em;
+  margin: 0;
+  color: var(--cream);
+  text-shadow: 0 0 40px rgba(201, 162, 75, 0.25);
+}
+
+.form-section {
+  background: rgba(23, 20, 15, 0.7);
+  border: 1px solid rgba(201, 162, 75, 0.25);
+  border-radius: 4px;
+  padding: 40px clamp(20px, 5vw, 48px) 48px;
+  backdrop-filter: blur(2px);
+}
+
+.form-kicker {
+  margin: 0 0 4px;
+  font-family: 'Cinzel', serif;
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.form-title {
+  margin: 0 0 28px;
+  font-family: 'Bodoni Moda', serif;
+  font-weight: 700;
+  font-size: 1.7rem;
+  color: var(--cream);
+}
+
+.lead-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.field input {
+  background: rgba(244, 234, 217, 0.04);
+  border: 1px solid rgba(244, 234, 217, 0.25);
+  border-radius: 2px;
+  padding: 13px 14px;
+  font-size: 1.15rem;
+  color: var(--cream);
+  font-family: 'Cormorant Garamond', serif;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.field input::placeholder {
+  color: rgba(169, 157, 136, 0.6);
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--gold);
+  background: rgba(244, 234, 217, 0.07);
+}
+
+.field input:invalid:not(:placeholder-shown) {
+  border-color: var(--danger);
+}
+
+#submit-btn {
+  margin-top: 8px;
+  padding: 14px 20px;
+  background: var(--gold);
+  color: #17140f;
+  border: none;
+  border-radius: 2px;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+#submit-btn:hover {
+  opacity: 0.9;
+}
+
+#submit-btn:active {
+  transform: scale(0.99);
+}
+
+#submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-status {
+  min-height: 1.2em;
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+}
+
+.form-status.success {
+  color: var(--success);
+}
+
+.form-status.error {
+  color: var(--danger);
+}
+
+.footer {
+  margin-top: auto;
+  padding-top: 40px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
