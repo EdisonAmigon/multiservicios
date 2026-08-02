@@ -16,7 +16,9 @@ function doPost(e) {
 
   ensureHeader(sheet);
 
-  sheet.appendRow([new Date(), nombre, correo, telefono]);
+  // La comilla inicial fuerza a Sheets a guardar el teléfono como texto,
+  // evitando que interprete el "+" inicial como el comienzo de una fórmula.
+  sheet.appendRow([new Date(), nombre, correo, "'" + telefono]);
 
   return respond({ ok: true });
 }
