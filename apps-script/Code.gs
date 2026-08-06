@@ -10,17 +10,70 @@ function doPost(e) {
   const correo = (data.correo || '').toString().trim();
   const telefono = (data.telefono || '').toString().trim();
 
-  if (!nombre || !correo || !telefono) {
+  // El correo es opcional: solo nombre y teléfono son obligatorios.
+  if (!nombre || !telefono) {
     return respond({ ok: false, error: 'Faltan campos requeridos.' });
   }
 
   ensureHeader(sheet);
 
-  // La comilla inicial fuerza a Sheets a guardar el teléfono como texto,
-  // evitando que interprete el "+" inicial como el comienzo de una fórmula.
-  sheet.appendRow([new Date(), nombre, correo, "'" + telefono]);
+  if (isDuplicate(sheet, nombre, telefono)) {
+    return respond({ ok: false, error: 'Este registro ya fue enviado hace poco.' });
+  }
+
+  const row = sheet.getLastRow() + 1;
+
+  // Fijamos la columna D (Teléfono) como texto plano ANTES de escribir el valor.
+  // El flush() obliga a Sheets a aplicar el formato de inmediato: sin esto,
+  // Apps Script a veces agrupa el cambio de formato y la escritura del valor,
+  // y el "+" inicial se sigue interpretando como el comienzo de una fórmula
+  // (lo que produce el "#ERROR!").
+  sheet.getRange(row, 4).setNumberFormat('@');
+  SpreadsheetApp.flush();
+  sheet.getRange(row, 1, 1, 4).setValues([[new Date(), nombre, correo, telefono]]);
 
   return respond({ ok: true });
+}
+
+// Revisa las últimas DUPLICATE_CHECK_ROWS filas y rechaza el registro si
+// encuentra el mismo nombre + teléfono ya guardado en los últimos
+// DUPLICATE_WINDOW_MINUTES minutos. Evita copias exactas por doble envío
+// (recarga de página, dos pestañas, etc.) sin bloquear a alguien que
+// legítimamente vuelve a escribir más tarde.
+function isDuplicate(sheet, nombre, telefono) {
+  // Ventana de tiempo (minutos) y cantidad de filas recientes que se revisan.
+  // Declaradas aquí adentro (y no arriba del archivo) para que nunca se
+  // pierdan si en el futuro se copia solo una parte del código.
+  const DUPLICATE_WINDOW_MINUTES = 10;
+  const DUPLICATE_CHECK_ROWS = 50;
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return false; // solo hay encabezado o está vacía
+
+  const firstRowToCheck = Math.max(2, lastRow - DUPLICATE_CHECK_ROWS + 1);
+  const numRows = lastRow - firstRowToCheck + 1;
+  const values = sheet.getRange(firstRowToCheck, 1, numRows, 4).getValues();
+
+  const now = new Date();
+  const cutoffMs = DUPLICATE_WINDOW_MINUTES * 60 * 1000;
+  const nombreNorm = nombre.toLowerCase();
+  const telefonoNorm = telefono.replace(/\s+/g, '');
+
+  for (let i = 0; i < values.length; i++) {
+    const fila = values[i];
+    const fecha = fila[0];
+    if (!(fecha instanceof Date)) continue;
+    if (now.getTime() - fecha.getTime() > cutoffMs) continue;
+
+    const filaNombreNorm = (fila[1] || '').toString().trim().toLowerCase();
+    const filaTelefonoNorm = (fila[3] || '').toString().replace(/\s+/g, '');
+
+    if (filaNombreNorm === nombreNorm && filaTelefonoNorm === telefonoNorm) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 function ensureHeader(sheet) {
@@ -33,6 +86,25 @@ function respond(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// Función de prueba: selecciónala en el desplegable de funciones (arriba del
+// editor, junto al botón ▷ Ejecutar) y dale a Ejecutar. Simula un envío del
+// formulario sin necesidad de usar el sitio real ni volver a desplegar.
+// El resultado (éxito o el error completo) aparece en el panel de abajo,
+// "Registro de ejecución".
+function testDoPost() {
+  const fakeEvent = {
+    postData: {
+      contents: JSON.stringify({
+        nombre: 'Prueba Debug',
+        correo: 'prueba@ejemplo.com',
+        telefono: '+52 5551234567'
+      })
+    }
+  };
+  const resultado = doPost(fakeEvent);
+  Logger.log(resultado.getContent());
 }
 
 /*
